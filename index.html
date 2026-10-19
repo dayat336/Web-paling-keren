@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dayat Friends</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg-dark: #0f0c20; --card-bg: #1a1636; --primary: #8b5cf6; --gold: #f59e0b; --danger: #ef4444; --text-light: #f3f4f6; --text-muted: #9ca3af; --border: #2e285c; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-light); min-height: 100vh; display: flex; flex-direction: column; }
+        nav { background: rgba(26, 22, 54, 0.98); border-bottom: 1px solid var(--border); padding: 0.8rem 1rem; display: flex; flex-direction: column; gap: 10px; position: sticky; top: 0; z-index: 100; }
+        @media (min-width: 768px) { nav { flex-direction: row; justify-content: space-between; align-items: center; padding: 1rem 2rem; } }
+        .logo-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .logo { font-size: 1.2rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .logo i { color: var(--gold); }
+        .nav-links { display: flex; gap: 8px; align-items: center; overflow-x: auto; width: 100%; padding-bottom: 4px; }
+        .nav-btn { background: #251f4f; border: 1px solid var(--border); color: var(--text-light); padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; white-space: nowrap; flex-shrink: 0; }
+        .nav-btn.active { background: var(--primary); border-color: var(--primary); }
+        .user-badge { display: flex; align-items: center; gap: 8px; background: #251f4f; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); font-size: 0.8rem; white-space: nowrap; flex-shrink: 0; }
+        .role-tag { padding: 2px 6px; border-radius: 10px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; }
+        .role-owner { background: var(--gold); color: #000; }
+        .role-admin { background: #10b981; color: #fff; }
+        .role-member { background: #6b7280; color: #fff; }
+        .container { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; flex: 1; width: 100%; }
+        .section { display: none; }
+        .section.show { display: block !important; }
+        .section-title { font-size: 1.3rem; margin-bottom: 1.2rem; color: var(--text-light); display: flex; align-items: center; gap: 8px; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
+        .auth-container { max-width: 400px; margin: 1.5rem auto; background: var(--card-bg); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--border); }
+        .auth-tabs { display: flex; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+        .auth-tab { flex: 1; padding: 8px; background: none; border: none; color: var(--text-muted); font-weight: 600; cursor: pointer; }
+        .auth-tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.8rem; color: var(--text-muted); }
+        .form-group input { width: 100%; padding: 10px; background: #120e2b; border: 1px solid var(--border); border-radius: 8px; color: white; outline: none; }
+        .btn { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-danger { background: var(--danger); }
+        .members-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1rem; }
+        @media (min-width: 600px) { .members-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); } }
+        .member-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; text-align: center; }
+        .member-avatar { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; margin: 0 auto 0.8rem; border: 2px solid var(--primary); background: #251f4f; }
+        .member-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; }
+        .member-actions { margin-top: 0.8rem; display: flex; flex-direction: column; gap: 6px; }
+        .btn-sm { padding: 6px 10px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; border: none; }
+        .gallery-controls { background: var(--card-bg); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1.5rem; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+        @media (min-width: 600px) { .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
+        .gallery-item { background: var(--card-bg); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); position: relative; }
+        .gallery-img { width: 100%; height: 140px; object-fit: cover; background: #251f4f; }
+        .gallery-info { padding: 0.8rem; font-size: 0.85rem; }
+        .delete-btn { position: absolute; top: 8px; right: 8px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
+        .game-container { max-width: 350px; margin: 0 auto; background: var(--card-bg); padding: 1.2rem; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
+        .game-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 1rem 0; }
+        .cell { aspect-ratio: 1; background: #120e2b; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; cursor: pointer; }
+        .cell.x { color: var(--primary); } .cell.o { color: var(--gold); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-content { background: var(--card-bg); padding: 1.5rem; border-radius: 12px; width: 100%; max-width: 380px; border: 1px solid var(--border); }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo-row">
+            <div class="logo"><i class="fa-solid fa-crown"></i> Dayat Friends</div>
+            <button style="background:transparent; border:1px solid var(--border); color:var(--text-muted); font-size:0.7rem; padding:4px 8px; border-radius:6px; cursor:pointer;" onclick="resetAllData()"><i class="fa-solid fa-rotate"></i> Reset Data</button>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn active" id="btnNavMembers" onclick="showTab('members')"><i class="fa-solid fa-users"></i> Anggota</button>
+            <button class="nav-btn" id="btnNavGallery" onclick="showTab('gallery')"><i class="fa-solid fa-images"></i> Galeri</button>
+            <button class="nav-btn" id="btnNavGame" onclick="showTab('game')"><i class="fa-solid fa-gamepad"></i> Tic-Tac-Toe</button>
+            <div id="userInfo" class="user-badge hidden">
+                <span id="navUsername">User</span>
+                <span id="navRole" class="role-tag">Role</span>
+                <button onclick="doLogout()" style="background:none; border:none; color:var(--danger); cursor:pointer; margin-left:4px;"><i class="fa-solid fa-power-off"></i></button>
+            </div>
+            <button id="loginNavBtn" class="nav-btn" onclick="showTab('auth')"><i class="fa-solid fa-user"></i> Login</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="authSection" class="section">
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="tabLogin" onclick="setAuth('login')">Login</button>
+                    <button class="auth-tab" id="tabRegister" onclick="setAuth('register')">Registrasi</button>
+                </div>
+                <form onsubmit="submitAuth(event)">
+                    <div class="form-group"><label>Username</label><input type="text" id="authUsername" required></div>
+                    <div class="form-group"><label>Password</label><input type="password" id="authPassword" required></div>
+                    <button type="submit" class="btn" id="authSubmitBtn">Masuk</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="membersSection" class="section show">
+            <h2 class="section-title"><i class="fa-solid fa-user-group"></i> 9 Anggota Utama</h2>
+            <div class="members-grid" id="membersGrid"></div>
+        </div>
+
+        <div id="gallerySection" class="section">
+            <h2 class="section-title"><i class="fa-solid fa-photo-film"></i> Galeri Komunitas</h2>
+            <div class="gallery-controls" id="uploadControls">
+                <h3 style="margin-bottom: 0.8rem; font-size: 0.95rem;">Tambah Foto Baru</h3>
+                <form onsubmit="submitPhoto(event)" style="display: flex; flex-direction: column; gap: 10px;">
+                    <input type="text" id="imgTitle" placeholder="Judul Foto" style="padding: 10px; background:#120e2b; border:1px solid var(--border); color:white; border-radius:8px;" required>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="file" id="imgFile" accept="image/*" style="display:none" onchange="fileSelected()">
+                        <button type="button" class="btn" style="background:#251f4f; flex:1;" onclick="document.getElementById('imgFile').click()"><i class="fa-solid fa-file-image"></i> <span id="fileNameLabel">Pilih Gambar</span></button>
+                        <button type="submit" class="btn" style="flex:1;">Unggah</button>
+                    </div>
+                </form>
+            </div>
+            <div class="gallery-grid" id="galleryGrid"></div>
+        </div>
+
+        <div id="gameSection" class="section">
+            <h2 class="section-title"><i class="fa-solid fa-gamepad"></i> Mini Game Tic-Tac-Toe</h2>
+            <div class="game-container">
+                <div style="margin-bottom: 0.8rem; font-size: 0.85rem;">
+                    <label style="margin-right: 6px;">Mode:</label>
+                    <select id="gameMode" onchange="resetGame()" style="padding: 6px; background:#120e2b; color:white; border:1px solid var(--border); border-radius:6px;">
+                        <option value="pvp">Player vs Player</option>
+                        <option value="bot">Player vs Bot AI</option>
+                    </select>
+                </div>
+                <div style="font-size: 0.95rem; margin-bottom: 0.8rem; font-weight: 600;" id="gameStatus">Giliran: Pemain X</div>
+                <div class="game-board" id="board">
+                    <div class="cell" onclick="cellClick(0)"></div>
+                    <div class="cell" onclick="cellClick(1)"></div>
+                    <div class="cell" onclick="cellClick(2)"></div>
+                    <div class="cell" onclick="cellClick(3)"></div>
+                    <div class="cell" onclick="cellClick(4)"></div>
+                    <div class="cell" onclick="cellClick(5)"></div>
+                    <div class="cell" onclick="cellClick(6)"></div>
+                    <div class="cell" onclick="cellClick(7)"></div>
+                    <div class="cell" onclick="cellClick(8)"></div>
+                </div>
+                <button class="btn" onclick="resetGame()"><i class="fa-solid fa-rotate-right"></i> Reset Permainan</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 1rem; font-size:1.1rem;">Edit Profil Anggota</h3>
+            <input type="hidden" id="editMemberIndex">
+            <div class="form-group"><label>Nama Anggota</label><input type="text" id="editMemberName"></div>
+            <div class="form-group"><label>Pilih Foto Profil Baru</label><input type="file" id="editMemberAvatar" accept="image/*"></div>
+            <div style="display: flex; gap: 8px; margin-top: 1.2rem;">
+                <button class="btn" onclick="saveMemberEdit()">Simpan</button>
+                <button class="btn btn-danger" onclick="closeEditModal()">Batal</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%238b5cf6'/><circle cx='50' cy='40' r='20' fill='%23ffffff'/><path d='M20 85 C 20 60, 80 60, 80 85 Z' fill='%23ffffff'/></svg>";
+        const DEFAULT_GALLERY_IMG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'><rect width='300' height='200' fill='%23251f4f'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%238b5cf6' font-size='20' font-family='sans-serif'>Galeri Dayat Friends</text></svg>";
+
+        const DEFAULT_MEMBERS = [
+            { id: 1, name: "Dayat (Owner)", role: "owner", username: "yatzzking", avatar: DEFAULT_AVATAR },
+            { id: 2, name: "Budi", role: "admin", username: "budi_admin", avatar: DEFAULT_AVATAR },
+            { id: 3, name: "Siti", role: "member", username: "siti", avatar: DEFAULT_AVATAR },
+            { id: 4, name: "Andi", role: "member", username: "andi", avatar: DEFAULT_AVATAR },
+            { id: 5, name: "Dewi", role: "member", username: "dewi", avatar: DEFAULT_AVATAR },
+            { id: 6, name: "Rizky", role: "member", username: "rizky", avatar: DEFAULT_AVATAR },
+            { id: 7, name: "Lestari", role: "member", username: "lestari", avatar: DEFAULT_AVATAR },
+            { id: 8, name: "Fajar", role: "member", username: "fajar", avatar: DEFAULT_AVATAR },
+            { id: 9, name: "Nia", role: "member", username: "nia", avatar: DEFAULT_AVATAR }
+        ];
+
+        let members = DEFAULT_MEMBERS;
+        let users = [
+            { username: "yatzzking", password: "yatzz889", role: "owner" },
+            { username: "budi_admin", password: "123", role: "admin" }
+        ];
+        let gallery = [
+            { id: 1, title: "Momen Kumpul Bareng", url: DEFAULT_GALLERY_IMG, uploader: "yatzzking" }
+        ];
+        let currentUser = null;
+        let authMode = 'login';
+
+        function loadStorage() {
+            try {
+                if(localStorage.getItem('df_v2_members')) members = JSON.parse(localStorage.getItem('df_v2_members'));
+                if(localStorage.getItem('df_v2_users')) users = JSON.parse(localStorage.getItem('df_v2_users'));
+                if(localStorage.getItem('df_v2_gallery')) gallery = JSON.parse(localStorage.getItem('df_v2_gallery'));
+                if(localStorage.getItem('df_v2_current_user')) currentUser = JSON.parse(localStorage.getItem('df_v2_current_user'));
+            } catch(e) {}
+        }
+
+        function saveStorage() {
+            try {
+                localStorage.setItem('df_v2_members', JSON.stringify(members));
+                localStorage.setItem('df_v2_users', JSON.stringify(users));
+                localStorage.setItem('df_v2_gallery', JSON.stringify(gallery));
+                localStorage.setItem('df_v2_current_user', JSON.stringify(currentUser));
+            } catch(e){}
+        }
+
+        function resetAllData() {
+            localStorage.clear();
+            alert('Sistem berhasil di-reset!');
+            location.reload();
+        }
+
+        function showTab(tab) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('show'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            const sec = document.getElementById(tab + 'Section');
+            if(sec) sec.classList.add('show');
+            if(tab === 'members') document.getElementById('btnNavMembers').classList.add('active');
+            if(tab === 'gallery') document.getElementById('btnNavGallery').classList.add('active');
+            if(tab === 'game') document.getElementById('btnNavGame').classList.add('active');
+            if(tab === 'auth') document.getElementById('loginNavBtn').classList.add('active');
+        }
+
+        function updateUI() {
+            const userInfo = document.getElementById('userInfo');
+            const loginBtn = document.getElementById('loginNavBtn');
+            const uploadControls = document.getElementById('uploadControls');
+            if (currentUser) {
+                userInfo.classList.remove('hidden');
+                loginBtn.classList.add('hidden');
+                document.getElementById('navUsername').textContent = currentUser.username;
+                const roleTag = document.getElementById('navRole');
+                roleTag.textContent = currentUser.role;
+                roleTag.className = 'role-tag role-' + currentUser.role;
+                uploadControls.style.display = 'block';
+            } else {
+                userInfo.classList.add('hidden');
+                loginBtn.classList.remove('hidden');
+                uploadControls.style.display = 'none';
+            }
+        }
+
+        function setAuth(mode) {
+            authMode = mode;
+            document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+            document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
+            document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Masuk' : 'Daftar Sekarang';
+        }
+
+        function submitAuth(e) {
+            e.preventDefault();
+            const u = document.getElementById('authUsername').value.trim();
+            const p = document.getElementById('authPassword').value.trim();
+            if (!u || !p) return alert('Isi semua field!');
+            if (authMode === 'login') {
+                const found = users.find(x => x.username === u && x.password === p);
+                if (found) {
+                    currentUser = found;
+                    saveStorage();
+                    updateUI();
+                    renderMembers();
+                    renderGallery();
+                    showTab('members');
+                    alert('Login Berhasil!');
+                } else {
+                    alert('Username atau password salah!');
+                }
+            } else {
+                if (users.find(x => x.username === u)) return alert('Username sudah terdaftar!');
+                const newUser = { username: u, password: p, role: 'member' };
+                users.push(newUser);
+                currentUser = newUser;
+                saveStorage();
+                updateUI();
+                renderMembers();
+                renderGallery();
+                showTab('members');
+                alert('Pendaftaran Berhasil!');
+            }
+        }
+
+        function doLogout() {
+            currentUser = null;
+            saveStorage();
+            updateUI();
+            renderMembers();
+            renderGallery();
+            alert('Berhasil Logout');
+        }
+
+        function renderMembers() {
+            const grid = document.getElementById('membersGrid');
+            grid.innerHTML = '';
+            members.forEach((m, index) => {
+                const card = document.createElement('div');
+                card.className = 'member-card';
+                const isOwner = currentUser && currentUser.role === 'owner';
+                const canEdit = currentUser && (isOwner || currentUser.username === m.username);
+                let adminBtn = '';
+                if (isOwner && m.role !== 'owner') {
+                    adminBtn = m.role === 'admin' ? 
+                        `<button class="btn-sm btn-danger" onclick="toggleAdmin(${index})">Cabut Admin</button>` :
+                        `<button class="btn-sm" style="background:var(--gold); color:black;" onclick="toggleAdmin(${index})">Jadi Admin</button>`;
+                }
+                card.innerHTML = `
+                    <img src="${m.avatar}" class="member-avatar">
+                    <div class="member-name">${m.name}</div>
+                    <div><span class="role-tag role-${m.role}">${m.role}</span></div>
+                    <div class="member-actions">
+                        ${canEdit ? `<button class="btn-sm btn" onclick="openEditModal(${index})"><i class="fa-solid fa-pen"></i> Edit</button>` : ''}
+                        ${adminBtn}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleAdmin(index) {
+            if (!currentUser || currentUser.role !== 'owner') return;
+            const targetMember = members[index];
+            const targetUser = users.find(u => u.username === targetMember.username);
+            if (targetMember.role === 'admin') {
+                targetMember.role = 'member';
+                if(targetUser) targetUser.role = 'member';
+            } else {
+                targetMember.role = 'admin';
+                if(targetUser) targetUser.role = 'admin';
+            }
+            saveStorage();
+            renderMembers();
+            updateUI();
+        }
+
+        function openEditModal(index) {
+            document.getElementById('editMemberIndex').value = index;
+            document.getElementById('editMemberName').value = members[index].name;
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+
+        function saveMemberEdit() {
+            const index = document.getElementById('editMemberIndex').value;
+            const newName = document.getElementById('editMemberName').value.trim();
+            const fileInput = document.getElementById('editMemberAvatar');
+            if (!newName) return alert('Nama tidak boleh kosong');
+            members[index].name = newName;
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    members[index].avatar = e.target.result;
+                    saveStorage();
+                    renderMembers();
+                    closeEditModal();
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                saveStorage();
+                renderMembers();
+                closeEditModal();
+            }
+        }
+
+        function fileSelected() {
+            const input = document.getElementById('imgFile');
+            if(input.files.length > 0) document.getElementById('fileNameLabel').textContent = input.files[0].name;
+        }
+
+        function submitPhoto(e) {
+            e.preventDefault();
+            if (!currentUser) return alert('Silakan login terlebih dahulu!');
+            const title = document.getElementById('imgTitle').value;
+            const fileInput = document.getElementById('imgFile');
+            if (!fileInput.files[0]) return alert('Pilih gambar terlebih dahulu!');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                gallery.unshift({ id: Date.now(), title, url: e.target.result, uploader: currentUser.username });
+                saveStorage();
+                renderGallery();
+                document.getElementById('imgTitle').value = '';
+                document.getElementById('imgFile').value = '';
+                document.getElementById('fileNameLabel').textContent = 'Pilih Gambar';
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+
+        function renderGallery() {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+            const isOwner = currentUser && currentUser.role === 'owner';
+            gallery.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'gallery-item';
+                const deleteBtn = isOwner ? `<button class="delete-btn" onclick="deletePhoto(${item.id})"><i class="fa-solid fa-trash"></i></button>` : '';
+                div.innerHTML = `
+                    <img src="${item.url}" class="gallery-img">
+                    ${deleteBtn}
+                    <div class="gallery-info">
+                        <strong>${item.title}</strong>
+                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Oleh: ${item.uploader}</div>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function deletePhoto(id) {
+            if (!currentUser || currentUser.role !== 'owner') return alert('Hanya Owner yang berhak menghapus foto!');
+            if (confirm('Apakah Anda yakin ingin menghapus foto ini?')) {
+                gallery = gallery.filter(item => item.id != id);
+                saveStorage();
+                renderGallery();
+            }
+        }
+
+        let boardState = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X';
+        let gameActive = true;
+        const winConditions = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
+
+        function cellClick(index) {
+            if (boardState[index] !== '' || !gameActive) return;
+            boardState[index] = currentPlayer;
+            renderBoard();
+            if (checkWin()) {
+                document.getElementById('gameStatus').textContent = `Pemain ${currentPlayer} Menang! 🎉`;
+                gameActive = false;
+                return;
+            }
+            if (!boardState.includes('')) {
+                document.getElementById('gameStatus').textContent = `Permainan Seri! 🤝`;
+                gameActive = false;
+                return;
+            }
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            document.getElementById('gameStatus').textContent = `Giliran: Pemain ${currentPlayer}`;
+            if (document.getElementById('gameMode').value === 'bot' && currentPlayer === 'O' && gameActive) {
+                setTimeout(botMove, 400);
+            }
+        }
+
+        function botMove() {
+            let empty = [];
+            boardState.forEach((val, i) => { if (val === '') empty.push(i); });
+            if (empty.length > 0) {
+                cellClick(empty[Math.floor(Math.random() * empty.length)]);
+            }
+        }
+
+        function checkWin() {
+            return winConditions.some(c => c.every(i => boardState[i] === currentPlayer));
+        }
+
+        function renderBoard() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, i) => {
+                cell.textContent = boardState[i];
+                cell.className = 'cell ' + boardState[i].toLowerCase();
+            });
+        }
+
+        function resetGame() {
+            boardState = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameActive = true;
+            document.getElementById('gameStatus').textContent = `Giliran: Pemain X`;
+            renderBoard();
+        }
+
+        window.onload = function() {
+            loadStorage();
+            saveStorage();
+            updateUI();
+            renderMembers();
+            renderGallery();
+            resetGame();
+            showTab('members');
+        };
+    </script>
+</body>
+</html>
